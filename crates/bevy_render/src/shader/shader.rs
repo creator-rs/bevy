@@ -109,9 +109,9 @@ impl Shader {
         Shader { stage, source }
     }
 
-    pub fn from_spirv(stage: ShaderStage, spirv: &str) -> Shader {
+    pub fn from_spirv(stage: ShaderStage, spirv: &[u8]) -> Shader {
         Shader {
-            source: ShaderSource::Spirv(bytes_to_words(spirv.as_bytes())),
+            source: ShaderSource::Spirv(bytes_to_words(spirv)),
             stage,
         }
     }

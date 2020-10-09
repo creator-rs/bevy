@@ -56,13 +56,25 @@ pub fn build_ui_pipeline(shaders: &mut Assets<Shader>) -> PipelineDescriptor {
             write_mask: ColorWrite::ALL,
         }],
         ..PipelineDescriptor::new(ShaderStages {
+            #[cfg(not(target_os = "android"))]
             vertex: shaders.add(Shader::from_glsl(
                 ShaderStage::Vertex,
                 include_str!("ui.vert"),
             )),
+            #[cfg(not(target_os = "android"))]
             fragment: Some(shaders.add(Shader::from_glsl(
                 ShaderStage::Fragment,
                 include_str!("ui.frag"),
+            ))),
+            #[cfg(target_os = "android")]
+            vertex: shaders.add(Shader::from_spirv(
+                ShaderStage::Vertex,
+                include_bytes!("ui.vert.spv"),
+            )),
+            #[cfg(target_os = "android")]
+            fragment: Some(shaders.add(Shader::from_spirv(
+                ShaderStage::Fragment,
+                include_bytes!("ui.frag.spv"),
             ))),
         })
     }
