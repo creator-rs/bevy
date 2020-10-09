@@ -48,10 +48,22 @@ pub(crate) fn build_forward_pipeline(shaders: &mut Assets<Shader>) -> PipelineDe
             write_mask: ColorWrite::ALL,
         }],
         ..PipelineDescriptor::new(ShaderStages {
+            #[cfg(target_os = "android")]
+            vertex: shaders.add(Shader::from_spirv(
+                ShaderStage::Vertex,
+                include_str!("forward.vert.spv"),
+            )),
+            #[cfg(not(target_os = "android"))]
             vertex: shaders.add(Shader::from_glsl(
                 ShaderStage::Vertex,
                 include_str!("forward.vert"),
             )),
+            #[cfg(target_os = "android")]
+            fragment: Some(shaders.add(Shader::from_spirv(
+                ShaderStage::Fragment,
+                include_str!("forward.frag.spv"),
+            ))),
+            #[cfg(not(target_os = "android"))]
             fragment: Some(shaders.add(Shader::from_glsl(
                 ShaderStage::Fragment,
                 include_str!("forward.frag"),

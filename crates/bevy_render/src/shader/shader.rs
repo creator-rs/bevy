@@ -10,7 +10,7 @@ pub enum ShaderStage {
     Compute,
 }
 
-#[cfg(all(not(target_os = "android"), not(target_os = "ios")))]
+#[cfg(not(target_os = "ios"))]
 impl Into<bevy_glsl_to_spirv::ShaderType> for ShaderStage {
     fn into(self) -> bevy_glsl_to_spirv::ShaderType {
         match self {
@@ -21,7 +21,7 @@ impl Into<bevy_glsl_to_spirv::ShaderType> for ShaderStage {
     }
 }
 
-#[cfg(all(not(target_os = "android"), not(target_os = "ios")))]
+#[cfg(not(target_os = "ios"))]
 fn glsl_to_spirv(
     glsl_source: &str,
     stage: ShaderStage,
@@ -33,30 +33,6 @@ fn glsl_to_spirv(
     let mut spv_bytes = Vec::new();
     output.read_to_end(&mut spv_bytes).unwrap();
     bytes_to_words(&spv_bytes)
-}
-
-#[cfg(target_os = "android")]
-impl Into<naga::ShaderStage> for ShaderStage {
-    fn into(self) -> naga::ShaderStage {
-        match self {
-            ShaderStage::Vertex => naga::ShaderStage::Vertex,
-            ShaderStage::Fragment => naga::ShaderStage::Fragment,
-            ShaderStage::Compute => naga::ShaderStage::Compute,
-        }
-    }
-}
-
-#[cfg(target_os = "android")]
-fn glsl_to_spirv(
-    glsl_source: &str,
-    stage: ShaderStage,
-    shader_defs: Option<&[String]>,
-) -> Vec<u32> {
-    use naga::{back::spv, front::glsl};
-    println!("RustStdoutStderr: ####### {:?}", glsl_source);
-    let module = glsl::parse_str(glsl_source, "main", stage.into()).unwrap();
-    let debug_flag = spv::WriterFlags::DEBUG;
-    spv::Writer::new(&module.header, debug_flag).write(&module)
 }
 
 #[cfg(target_os = "ios")]
@@ -131,6 +107,13 @@ pub struct Shader {
 impl Shader {
     pub fn new(stage: ShaderStage, source: ShaderSource) -> Shader {
         Shader { stage, source }
+    }
+
+    pub fn from_spirv(stage: ShaderStage, spirv: &str) -> Shader {
+        Shader {
+            source: ShaderSource::Spirv(bytes_to_words(spirv.as_bytes())),
+            stage,
+        }
     }
 
     pub fn from_glsl(stage: ShaderStage, glsl: &str) -> Shader {
