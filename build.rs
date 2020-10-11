@@ -13,22 +13,16 @@ fn main() {
         "./crates/bevy_sprite/src/render/sprite_sheet.frag",
         "./crates/bevy_pbr/src/render_graph/forward_pipeline/forward.frag",
     ];
-    for vert in verts.to_vec() {
-        let content = std::fs::read_to_string(vert).unwrap();
+    build_shaders(verts.to_vec(), bevy_glsl_to_spirv::ShaderType::Vertex);
+    build_shaders(frags.to_vec(), bevy_glsl_to_spirv::ShaderType::Fragment);
+}
 
-        let mut output = bevy_glsl_to_spirv::compile(&content, bevy_glsl_to_spirv::ShaderType::Vertex, None).unwrap();
+fn build_shaders(paths: Vec<&str>, shader_type: bevy_glsl_to_spirv::ShaderType) {
+    for path in paths.to_vec() {
+        let content = std::fs::read_to_string(path).unwrap();
+        let mut output = bevy_glsl_to_spirv::compile(&content, shader_type.clone(), None).unwrap();
         let mut spv_bytes = Vec::new();
         output.read_to_end(&mut spv_bytes).unwrap();
-
-        std::fs::write(format!("{}.spv", vert), spv_bytes.as_slice()).unwrap();
-    }
-    for frag in frags.to_vec() {
-        let content = std::fs::read_to_string(frag).unwrap();
-
-        let mut output = bevy_glsl_to_spirv::compile(&content, bevy_glsl_to_spirv::ShaderType::Fragment, None).unwrap();
-        let mut spv_bytes = Vec::new();
-        output.read_to_end(&mut spv_bytes).unwrap();
-
-        std::fs::write(format!("{}.spv", frag), spv_bytes.as_slice()).unwrap();
+        std::fs::write(format!("{}.spv", path), spv_bytes.as_slice()).unwrap();
     }
 }
