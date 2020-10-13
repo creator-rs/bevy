@@ -54,26 +54,26 @@ pub fn build_sprite_sheet_pipeline(shaders: &mut Assets<Shader>) -> PipelineDesc
             write_mask: ColorWrite::ALL,
         }],
         ..PipelineDescriptor::new(ShaderStages {
-            #[cfg(not(target_os = "android"))]
+            // #[cfg(not(target_os = "android"))]
             vertex: shaders.add(Shader::from_glsl(
                 ShaderStage::Vertex,
                 include_str!("sprite_sheet.vert"),
             )),
-            #[cfg(not(target_os = "android"))]
+            // #[cfg(not(target_os = "android"))]
             fragment: Some(shaders.add(Shader::from_glsl(
                 ShaderStage::Fragment,
                 include_str!("sprite_sheet.frag"),
             ))),
-            #[cfg(target_os = "android")]
-            vertex: shaders.add(Shader::from_spirv(
-                ShaderStage::Vertex,
-                include_bytes!("sprite_sheet.vert.spv"),
-            )),
-            #[cfg(target_os = "android")]
-            fragment: Some(shaders.add(Shader::from_spirv(
-                ShaderStage::Fragment,
-                include_bytes!("sprite_sheet.frag.spv"),
-            ))),
+            // #[cfg(target_os = "android")]
+            // vertex: shaders.add(Shader::from_spirv(
+            //     ShaderStage::Vertex,
+            //     include_bytes!("sprite_sheet.vert.spv"),
+            // )),
+            // #[cfg(target_os = "android")]
+            // fragment: Some(shaders.add(Shader::from_spirv(
+            //     ShaderStage::Fragment,
+            //     include_bytes!("sprite_sheet.frag.spv"),
+            // ))),
         })
     }
 }
@@ -114,26 +114,26 @@ pub fn build_sprite_pipeline(shaders: &mut Assets<Shader>) -> PipelineDescriptor
             write_mask: ColorWrite::ALL,
         }],
         ..PipelineDescriptor::new(ShaderStages {
-            #[cfg(not(target_os = "android"))]
+            // #[cfg(not(target_os = "android"))]
             vertex: shaders.add(Shader::from_glsl(
                 ShaderStage::Vertex,
                 include_str!("sprite.vert"),
             )),
-            #[cfg(not(target_os = "android"))]
+            // #[cfg(not(target_os = "android"))]
             fragment: Some(shaders.add(Shader::from_glsl(
                 ShaderStage::Fragment,
                 include_str!("sprite.frag"),
             ))),
-            #[cfg(target_os = "android")]
-            vertex: shaders.add(Shader::from_spirv(
-                ShaderStage::Vertex,
-                include_bytes!("sprite.vert.spv"),
-            )),
-            #[cfg(target_os = "android")]
-            fragment: Some(shaders.add(Shader::from_spirv(
-                ShaderStage::Fragment,
-                include_bytes!("sprite.frag.spv"),
-            ))),
+            // #[cfg(target_os = "android")]
+            // vertex: shaders.add(Shader::from_spirv(
+            //     ShaderStage::Vertex,
+            //     include_bytes!("sprite.vert.spv"),
+            // )),
+            // #[cfg(target_os = "android")]
+            // fragment: Some(shaders.add(Shader::from_spirv(
+            //     ShaderStage::Fragment,
+            //     include_bytes!("sprite.frag.spv"),
+            // ))),
         })
     }
 }

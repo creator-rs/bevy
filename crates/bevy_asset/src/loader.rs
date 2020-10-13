@@ -2,19 +2,14 @@ use crate::{AssetServer, AssetVersion, Assets, Handle, LoadState};
 use anyhow::Result;
 use bevy_ecs::{Res, ResMut, Resource};
 use crossbeam_channel::{Receiver, Sender, TryRecvError};
-use fs::File;
-use io::Read;
-use std::{
-    fs, io,
-    path::{Path, PathBuf},
-};
+use std::path::{Path, PathBuf};
 use thiserror::Error;
 
 /// Errors that occur while loading assets
 #[derive(Error, Debug)]
 pub enum AssetLoadError {
     #[error("Encountered an io error while loading asset.")]
-    Io(#[from] io::Error),
+    Io(#[from] std::io::Error),
     #[error("This asset's loader encountered an error while loading.")]
     LoaderError(#[from] anyhow::Error),
 }
@@ -24,11 +19,27 @@ pub trait AssetLoader<T>: Send + Sync + 'static {
     fn from_bytes(&self, asset_path: &Path, bytes: Vec<u8>) -> Result<T, anyhow::Error>;
     fn extensions(&self) -> &[&str];
     fn load_from_file(&self, asset_path: &Path) -> Result<T, AssetLoadError> {
-        let mut file = File::open(asset_path)?;
-        let mut bytes = Vec::new();
-        file.read_to_end(&mut bytes)?;
-        let asset = self.from_bytes(asset_path, bytes)?;
-        Ok(asset)
+        #[cfg(not(target_os = "android"))]
+        {
+            use std::io::Read;
+            use std::fs::File;
+            let mut file = File::open(asset_path)?;
+            let mut bytes = Vec::new();
+            file.read_to_end(&mut bytes)?;
+            let asset = self.from_bytes(asset_path, bytes)?;
+            Ok(asset)
+        }
+        #[cfg(target_os = "android")]
+        {
+            use std::ffi::CString;
+            let asset_manager = ndk_glue::native_activity().asset_manager();
+            let mut opened_asset = asset_manager
+                .open(&CString::new(asset_path.to_str().unwrap()).unwrap())
+                .ok_or(AssetLoadError::LoaderError(anyhow::Error::msg("Failed to open asset")))?;
+            let bytes = opened_asset.get_buffer()?;
+            let asset = self.from_bytes(asset_path, bytes.to_vec())?;
+            Ok(asset)
+        }
     }
 }
 

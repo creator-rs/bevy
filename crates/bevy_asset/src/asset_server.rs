@@ -193,7 +193,12 @@ impl AssetServer {
 
     // TODO: add type checking here. people shouldn't be able to request a Handle<Texture> for a Mesh asset
     pub fn load<T, P: AsRef<Path>>(&self, path: P) -> Result<Handle<T>, AssetServerError> {
-        self.load_untyped(self.get_root_path()?.join(path))
+        // TODO: Make it work in other loader functions.
+        #[cfg(not(target_os = "android"))]
+        let path = self.get_root_path()?.join(path);
+        #[cfg(target_os = "android")]
+        let path = path.as_ref().to_path_buf();
+        self.load_untyped(path)
             .map(Handle::from)
     }
 
@@ -205,7 +210,11 @@ impl AssetServer {
     where
         T: 'static,
     {
+        // TODO: Make it work in other loader functions.
+        #[cfg(not(target_os = "android"))]
         let path = self.get_root_path()?.join(path);
+        #[cfg(target_os = "android")]
+        let path = path.as_ref().to_path_buf();
         if let Some(ref extension) = path.extension() {
             if let Some(index) = self.extension_to_loader_index.get(
                 extension

@@ -3,7 +3,6 @@ use crate::{AssetLoadError, AssetLoader, AssetResult, Handle};
 use anyhow::Result;
 use async_trait::async_trait;
 use crossbeam_channel::Sender;
-use std::{fs::File, io::Read};
 
 /// Handles load requests from an AssetServer
 
@@ -22,18 +21,7 @@ where
     }
 
     fn load_asset(&self, load_request: &LoadRequest) -> Result<TAsset, AssetLoadError> {
-        match File::open(&load_request.path) {
-            Ok(mut file) => {
-                let mut bytes = Vec::new();
-                file.read_to_end(&mut bytes)?;
-                let asset = self.loader.from_bytes(&load_request.path, bytes)?;
-                Ok(asset)
-            }
-            Err(e) => Err(AssetLoadError::Io(std::io::Error::new(
-                e.kind(),
-                format!("{}", load_request.path.display()),
-            ))),
-        }
+        self.loader.load_from_file(&load_request.path)
     }
 }
 
