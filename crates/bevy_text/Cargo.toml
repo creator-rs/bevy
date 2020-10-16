@@ -17,6 +17,7 @@ keywords = ["bevy"]
 bevy_app = { path = "../bevy_app", version = "0.3.0" }
 bevy_asset = { path = "../bevy_asset", version = "0.3.0" }
 bevy_core = { path = "../bevy_core", version = "0.3.0" }
+bevy_ecs = { path = "../bevy_ecs", version = "0.3.0" }
 bevy_math = { path = "../bevy_math", version = "0.3.0" }
 bevy_render = { path = "../bevy_render", version = "0.3.0" }
 bevy_sprite = { path = "../bevy_sprite", version = "0.3.0" }
@@ -25,4 +26,5 @@ bevy_utils = { path = "../bevy_utils", version = "0.3.0" }
 
 # other
 ab_glyph = "0.2.5"
+glyph_brush_layout = "0.2"
 anyhow = "1.0"
