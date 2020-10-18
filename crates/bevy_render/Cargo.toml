@@ -45,11 +45,12 @@ hex = "0.4.2"
 hexasphere = "1.0.0"
 parking_lot = "0.11.0"
 
-[target.'cfg(not(target_os = "ios"))'.dependencies]
-bevy-glsl-to-spirv = { git = "https://github.com/PrototypeNM1/glsl-to-spirv.git", branch = "static_lib" }
+[target.'cfg(all(not(target_os = "ios"), not(target_os = "android")))'.dependencies]
+bevy-glsl-to-spirv = "0.1.7"
 
-[target.'cfg(target_os = "ios")'.dependencies]
-shaderc = "0.6.2"
+[target.'cfg(any(target_os = "ios", target_os = "android"))'.dependencies]
+shaderc = { git = "https://github.com/creator-rs/shaderc-rs", rev = "26d069c37651dee99feeb21ecd98183b03f744da" }
+# shaderc = { path = "../../../shaderc/shaderc-rs" }
 
 [features]
 png = ["image/png"]

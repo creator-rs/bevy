@@ -10,7 +10,7 @@ pub enum ShaderStage {
     Compute,
 }
 
-#[cfg(not(target_os = "ios"))]
+#[cfg(all(not(target_os = "ios"), not(target_os = "android")))]
 impl Into<bevy_glsl_to_spirv::ShaderType> for ShaderStage {
     fn into(self) -> bevy_glsl_to_spirv::ShaderType {
         match self {
@@ -21,7 +21,7 @@ impl Into<bevy_glsl_to_spirv::ShaderType> for ShaderStage {
     }
 }
 
-#[cfg(not(target_os = "ios"))]
+#[cfg(all(not(target_os = "ios"), not(target_os = "android")))]
 fn glsl_to_spirv(
     glsl_source: &str,
     stage: ShaderStage,
@@ -30,7 +30,7 @@ fn glsl_to_spirv(
     bevy_glsl_to_spirv::compile(glsl_source, stage.into(), shader_defs).unwrap()
 }
 
-#[cfg(target_os = "ios")]
+#[cfg(any(target_os = "ios", target_os = "android"))]
 impl Into<shaderc::ShaderKind> for ShaderStage {
     fn into(self) -> shaderc::ShaderKind {
         match self {
@@ -41,7 +41,21 @@ impl Into<shaderc::ShaderKind> for ShaderStage {
     }
 }
 
-#[cfg(target_os = "ios")]
+// impl Into<naga::ShaderStage> for ShaderStage {
+//     fn into(self) -> naga::ShaderStage {
+//         match self {
+//             ShaderStage::Vertex => naga::ShaderStage::Vertex,
+//             ShaderStage::Fragment => naga::ShaderStage::Fragment,
+//             ShaderStage::Compute => naga::ShaderStage::Compute,
+//         }
+//     }
+// }
+// let module =
+//     naga::front::glsl::parse_str(glsl_source, "main", stage.into(), Default::default())
+//         .unwrap();
+// naga::back::spv::Writer::new(&module.header, naga::back::spv::WriterFlags::NONE).write(&module)
+
+#[cfg(any(target_os = "ios", target_os = "android"))]
 fn glsl_to_spirv(
     glsl_source: &str,
     stage: ShaderStage,
