@@ -30,8 +30,9 @@ where
     P: Decodable,
 {
     fn default() -> Self {
+        use rodio::HostTrait;
         Self {
-            device: rodio::default_output_device().unwrap(),
+            device: rodio::default_host().default_output_device().unwrap(),
             queue: Default::default(),
         }
     }
@@ -44,7 +45,8 @@ where
     <<P as Decodable>::Decoder as Iterator>::Item: rodio::Sample + Send + Sync,
 {
     pub fn play_source(&self, audio_source: &P) {
-        let sink = Sink::new(&self.device);
+        let out = rodio::OutputStream::try_from_device(&self.device).unwrap();
+        let sink = Sink::try_new(&out.1).unwrap();
         sink.append(audio_source.decoder());
         sink.detach();
     }
