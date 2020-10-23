@@ -50,10 +50,21 @@ impl Into<shaderc::ShaderKind> for ShaderStage {
 //         }
 //     }
 // }
-// let module =
-//     naga::front::glsl::parse_str(glsl_source, "main", stage.into(), Default::default())
-//         .unwrap();
-// naga::back::spv::Writer::new(&module.header, naga::back::spv::WriterFlags::NONE).write(&module)
+
+// fn glsl_to_spirv(
+//     glsl_source: &str,
+//     stage: ShaderStage,
+//     shader_defs: Option<&[String]>,
+// ) -> Vec<u32> {
+//     let mut options: naga::FastHashMap<String, String> = Default::default();
+//     if let Some(shader_defs) = shader_defs {
+//         for def in shader_defs.iter() {
+//             options.insert(def.to_owned(), "".to_owned());
+//         }
+//     }
+//     let module = naga::front::glsl::parse_str(glsl_source, "main", stage.into(), options).unwrap();
+//     naga::back::spv::Writer::new(&module.header, naga::back::spv::WriterFlags::NONE).write(&module)
+// }
 
 #[cfg(any(target_os = "ios", target_os = "android"))]
 fn glsl_to_spirv(

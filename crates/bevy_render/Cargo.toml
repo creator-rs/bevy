@@ -44,6 +44,7 @@ anyhow = "1.0"
 hex = "0.4.2"
 hexasphere = "1.0.0"
 parking_lot = "0.11.0"
+# naga = { git = "https://github.com/Napokue/naga", rev = "582b6c2a552c77f4fca286fb273f6272b13b8050", features = ["glsl-in", "spv-out"] }
 
 [target.'cfg(all(not(target_os = "ios"), not(target_os = "android")))'.dependencies]
 bevy-glsl-to-spirv = { git = "https://github.com/PrototypeNM1/glsl-to-spirv.git", branch = "static_lib" }

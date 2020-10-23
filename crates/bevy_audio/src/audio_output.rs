@@ -45,10 +45,11 @@ where
     <<P as Decodable>::Decoder as Iterator>::Item: rodio::Sample + Send + Sync,
 {
     pub fn play_source(&self, audio_source: &P) {
-        let out = rodio::OutputStream::try_from_device(&self.device).unwrap();
-        let sink = Sink::try_new(&out.1).unwrap();
+        let (_, stream) = rodio::OutputStream::try_from_device(&self.device).unwrap();
+        // stream.play_once(audio_source.decoder());
+        let sink = Sink::try_new(&stream).unwrap();
         sink.append(audio_source.decoder());
-        sink.detach();
+        // sink.detach();
     }
 
     pub fn play(&self, audio_source: Handle<P>) {
