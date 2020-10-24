@@ -14,6 +14,7 @@ use bevy_render::{
     pipeline::{DynamicBinding, PipelineSpecialization, RenderPipeline, RenderPipelines},
 };
 use bevy_sprite::{ColorMaterial, QUAD_HANDLE};
+use bevy_text::TextVertices;
 use bevy_transform::prelude::{GlobalTransform, Transform};
 
 #[derive(Bundle, Clone, Debug)]
@@ -118,6 +119,7 @@ pub struct TextComponents {
     pub focus_policy: FocusPolicy,
     pub transform: Transform,
     pub global_transform: GlobalTransform,
+    pub text_vertices: TextVertices,
 }
 
 impl Default for TextComponents {
@@ -134,6 +136,7 @@ impl Default for TextComponents {
             style: Default::default(),
             transform: Default::default(),
             global_transform: Default::default(),
+            text_vertices: Default::default(),
         }
     }
 }
