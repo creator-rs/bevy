@@ -11,7 +11,7 @@ pub enum ShaderStage {
     Compute,
 }
 
-#[cfg(all(not(target_os = "ios"), not(target_arch = "wasm32")))]
+#[cfg(all(not(target_os = "ios"), not(target_arch = "wasm32"), not(target_os = "android")))]
 impl Into<bevy_glsl_to_spirv::ShaderType> for ShaderStage {
     fn into(self) -> bevy_glsl_to_spirv::ShaderType {
         match self {
@@ -22,7 +22,7 @@ impl Into<bevy_glsl_to_spirv::ShaderType> for ShaderStage {
     }
 }
 
-#[cfg(all(not(target_os = "ios"), not(target_arch = "wasm32")))]
+#[cfg(all(not(target_os = "ios"), not(target_arch = "wasm32"), not(target_os = "android")))]
 fn glsl_to_spirv(
     glsl_source: &str,
     stage: ShaderStage,
@@ -36,7 +36,7 @@ fn glsl_to_spirv(
     bytes_to_words(&spv_bytes)
 }
 
-#[cfg(target_os = "ios")]
+#[cfg(any(target_os = "ios", target_os = "android"))]
 impl Into<shaderc::ShaderKind> for ShaderStage {
     fn into(self) -> shaderc::ShaderKind {
         match self {
@@ -47,7 +47,7 @@ impl Into<shaderc::ShaderKind> for ShaderStage {
     }
 }
 
-#[cfg(target_os = "ios")]
+#[cfg(any(target_os = "ios", target_os = "android"))]
 fn glsl_to_spirv(
     glsl_source: &str,
     stage: ShaderStage,

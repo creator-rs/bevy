@@ -47,11 +47,12 @@ parking_lot = "0.11.0"
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 spirv-reflect = "0.2.3"
 
-[target.'cfg(all(not(target_os = "ios"), not(target_arch = "wasm32")))'.dependencies]
+[target.'cfg(all(not(target_os = "ios"), not(target_arch = "wasm32"), not(target_os = "android")))'.dependencies]
 bevy-glsl-to-spirv = "0.1.7"
 
-[target.'cfg(target_os = "ios")'.dependencies]
-shaderc = "0.6.2"
+[target.'cfg(any(target_os = "ios", target_os = "android"))'.dependencies]
+# shaderc = "0.6.2"
+shaderc = { git = "https://github.com/creator-rs/shaderc-rs", rev = "26d069c37651dee99feeb21ecd98183b03f744da" }
 
 [features]
 png = ["image/png"]
