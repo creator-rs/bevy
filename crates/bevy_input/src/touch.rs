@@ -48,7 +48,7 @@ impl Touch {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Clone, Default)]
 pub struct Touches {
     active_touches: HashMap<u64, Touch>,
     just_pressed: HashSet<u64>,
@@ -102,16 +102,12 @@ pub fn touch_screen_input_system(
     for released_id in touch_state.just_released.iter() {
         touch_state.active_touches.remove(&released_id);
     }
-
     for cancelled_id in touch_state.just_cancelled.iter() {
         touch_state.active_touches.remove(&cancelled_id);
     }
-
     touch_state.just_pressed.clear();
     touch_state.just_cancelled.clear();
-
     for event in state.touch_event_reader.iter(&touch_input_events) {
-        let active_touch = touch_state.active_touches.get(&event.id);
         match event.phase {
             TouchPhase::Started => {
                 touch_state.active_touches.insert(
@@ -126,8 +122,12 @@ pub fn touch_screen_input_system(
                 touch_state.just_pressed.insert(event.id);
             }
             TouchPhase::Moved => {
-                let old_touch = active_touch.unwrap();
-                let mut new_touch = old_touch.clone();
+                // TODO: Fix this so that any time moved triggers there's an active touch
+                let active_touch = touch_state.active_touches.get(&event.id);
+                let mut new_touch = match active_touch {
+                    Some(x) => x.clone(),
+                    None => continue,
+                };
                 new_touch.previous_position = new_touch.position;
                 new_touch.position = event.position;
                 touch_state.active_touches.insert(event.id, new_touch);
