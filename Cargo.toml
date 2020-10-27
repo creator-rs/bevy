@@ -321,6 +321,10 @@ path = "examples/wasm/assets_wasm.rs"
 required-features = ["bevy_winit"]
 
 [[example]]
+name = "text_debug"
+path = "examples/ui/text_debug.rs"
+
+[[example]]
 name = "android"
 path = "examples/android/android.rs"
 crate-type = ["cdylib"]
