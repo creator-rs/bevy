@@ -11,7 +11,7 @@ pub enum ShaderStage {
     Compute,
 }
 
-#[cfg(all(not(target_os = "ios"), not(target_arch = "wasm32"), not(target_os = "android")))]
+#[cfg(all(not(target_os = "ios"), not(target_arch = "wasm32")))]
 impl Into<bevy_glsl_to_spirv::ShaderType> for ShaderStage {
     fn into(self) -> bevy_glsl_to_spirv::ShaderType {
         match self {
@@ -22,21 +22,16 @@ impl Into<bevy_glsl_to_spirv::ShaderType> for ShaderStage {
     }
 }
 
-#[cfg(all(not(target_os = "ios"), not(target_arch = "wasm32"), not(target_os = "android")))]
+#[cfg(all(not(target_os = "ios"), not(target_arch = "wasm32")))]
 fn glsl_to_spirv(
     glsl_source: &str,
     stage: ShaderStage,
     shader_defs: Option<&[String]>,
 ) -> Vec<u32> {
-    use std::io::Read;
-
-    let mut output = bevy_glsl_to_spirv::compile(glsl_source, stage.into(), shader_defs).unwrap();
-    let mut spv_bytes = Vec::new();
-    output.read_to_end(&mut spv_bytes).unwrap();
-    bytes_to_words(&spv_bytes)
+    bevy_glsl_to_spirv::compile(glsl_source, stage.into(), shader_defs).unwrap()
 }
 
-#[cfg(any(target_os = "ios", target_os = "android"))]
+#[cfg(target_os = "ios")]
 impl Into<shaderc::ShaderKind> for ShaderStage {
     fn into(self) -> shaderc::ShaderKind {
         match self {
@@ -47,7 +42,7 @@ impl Into<shaderc::ShaderKind> for ShaderStage {
     }
 }
 
-#[cfg(any(target_os = "ios", target_os = "android"))]
+#[cfg(target_os = "ios")]
 fn glsl_to_spirv(
     glsl_source: &str,
     stage: ShaderStage,
