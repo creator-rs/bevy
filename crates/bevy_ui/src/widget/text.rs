@@ -1,7 +1,7 @@
 use crate::{CalculatedSize, Node, Style, Val};
 use bevy_asset::{Assets, Handle};
-use bevy_ecs::{Changed, Entity, Local, Or, Query, QuerySet, Res, ResMut, Resource};
-use bevy_math::{Size, Vec2};
+use bevy_ecs::{Changed, Entity, Or, Query, Res, ResMut};
+use bevy_math::Size;
 use bevy_render::{
     draw::{Draw, DrawContext, Drawable},
     mesh::Mesh,
@@ -10,11 +10,8 @@ use bevy_render::{
     texture::Texture,
 };
 use bevy_sprite::{TextureAtlas, QUAD_HANDLE};
-use bevy_text::{
-    DrawableText, Font, FontAtlasSet, TextPipeline, TextStyle, TextVertex, TextVertices,
-};
-use bevy_transform::{components::Transform, prelude::GlobalTransform};
-use std::collections::HashSet;
+use bevy_text::{DrawableText, Font, FontAtlasSet, TextPipeline, TextStyle, TextVertices};
+use bevy_transform::prelude::GlobalTransform;
 
 #[derive(Debug, Default)]
 pub struct QueuedText {
@@ -28,8 +25,8 @@ pub struct Text {
     pub style: TextStyle,
 }
 
-/// Defines how min_size, size, and max_size affects the bounds of a text 
-/// block. 
+/// Defines how min_size, size, and max_size affects the bounds of a text
+/// block.
 pub fn text_constraint(min_size: Val, size: Val, max_size: Val) -> f32 {
     // Needs support for percentages
     match (min_size, size, max_size) {
@@ -55,10 +52,14 @@ pub fn text_system(
         &mut CalculatedSize,
     )>,
 ) {
-    for ((text, style), mut vertices, mut calculated_size) in text_query.iter() {
+    for ((text, style), mut vertices, mut calculated_size) in text_query.iter_mut() {
         let node_size = Size::new(
-            text_constraint(style.min_size.width, style.size.width, style.max_size.width), 
-            text_constraint(style.min_size.height, style.size.height, style.max_size.height), 
+            text_constraint(style.min_size.width, style.size.width, style.max_size.width),
+            text_constraint(
+                style.min_size.height,
+                style.size.height,
+                style.max_size.height,
+            ),
         );
 
         if let Err(e) = text_pipeline.queue_text(
@@ -105,7 +106,7 @@ pub fn draw_text_system(
     let font_quad = meshes.get(&QUAD_HANDLE).unwrap();
     let vertex_buffer_descriptor = font_quad.get_vertex_buffer_descriptor();
 
-    for (mut draw, text, text_vertices, node, global_transform) in &mut query.iter() {
+    for (mut draw, text, text_vertices, node, global_transform) in query.iter_mut() {
         let position = global_transform.translation - (node.size / 2.0).extend(0.0);
 
         let mut drawable_text = DrawableText {
@@ -115,7 +116,7 @@ pub fn draw_text_system(
             msaa: &msaa,
             text_vertices,
             style: &text.style,
-            font_quad_vertex_descriptor: vertex_buffer_descriptor,
+            font_quad_vertex_descriptor: &vertex_buffer_descriptor,
         };
         drawable_text.draw(&mut draw, &mut context).unwrap();
     }
