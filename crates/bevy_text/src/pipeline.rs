@@ -54,12 +54,14 @@ impl TextPipeline {
             .compute_glyphs(&[section], bounds, text_alignment)?;
 
         if section_glyphs.is_empty() {
-            return Ok(Size::new(0.,0.));
+            return Ok(Size::new(0., 0.));
         }
         let first_glyph = section_glyphs.first().unwrap();
-        let mut min_x: f32 = first_glyph.glyph.position.x - scaled_font.h_side_bearing(first_glyph.glyph.id);
+        let mut min_x: f32 =
+            first_glyph.glyph.position.x - scaled_font.h_side_bearing(first_glyph.glyph.id);
         let mut min_y: f32 = first_glyph.glyph.position.y - scaled_font.ascent();
-        let mut max_x: f32 = first_glyph.glyph.position.x + scaled_font.h_advance(first_glyph.glyph.id);
+        let mut max_x: f32 =
+            first_glyph.glyph.position.x + scaled_font.h_advance(first_glyph.glyph.id);
         let mut max_y: f32 = first_glyph.glyph.position.y - scaled_font.descent();
         for section_glyph in section_glyphs.iter() {
             let glyph = &section_glyph.glyph;
