@@ -76,10 +76,10 @@ impl TextPipeline {
 
     pub fn get_or_insert_font_id(&mut self, handle: Handle<Font>, font: &Font) -> FontId {
         let brush = &mut self.brush;
-        self.map_font_id
+        *self
+            .map_font_id
             .entry(handle.id)
             .or_insert_with(|| brush.add_font(handle.clone(), font.font.clone()))
-            .clone()
     }
 
     pub fn queue_text(

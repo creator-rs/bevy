@@ -91,7 +91,7 @@ impl<'a> Drawable for DrawableText<'a> {
         // set global bindings
         context.set_bind_groups_from_bindings(draw, &mut [self.render_resource_bindings])?;
 
-        for tv in self.text_vertices.borrow() {
+        for tv in &**self.text_vertices {
             let atlas_render_resource_bindings = self
                 .asset_render_resource_bindings
                 .get_mut(&tv.atlas_info.texture_atlas)
