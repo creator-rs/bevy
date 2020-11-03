@@ -1,7 +1,7 @@
 use bevy_input::{
     keyboard::{ElementState, KeyCode, KeyboardInput},
     mouse::MouseButton,
-    touch::{TouchInput, TouchPhase},
+    touch::{ForceTouch, TouchInput, TouchPhase},
 };
 use bevy_math::Vec2;
 
@@ -38,6 +38,18 @@ pub fn convert_touch_input(touch_input: winit::event::Touch) -> TouchInput {
             winit::event::TouchPhase::Cancelled => TouchPhase::Cancelled,
         },
         position: Vec2::new(touch_input.location.x as f32, touch_input.location.y as f32),
+        force: touch_input.force.map(|f| match f {
+            winit::event::Force::Calibrated {
+                force,
+                max_possible_force,
+                altitude_angle,
+            } => ForceTouch::Calibrated {
+                force,
+                max_possible_force,
+                altitude_angle,
+            },
+            winit::event::Force::Normalized(x) => ForceTouch::Normalized(x),
+        }),
         id: touch_input.id,
     }
 }
