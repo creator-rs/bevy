@@ -28,11 +28,6 @@ pub enum ShaderError {
     Compilation(String),
 
     #[cfg(any(target_os = "ios", all(target_arch = "aarch64", target_os = "macos")))]
-    /// shaderc error.
-    #[error("shaderc error")]
-    ShaderC(#[from] shaderc::Error),
-
-    #[cfg(any(target_os = "ios", all(target_arch = "aarch64", target_os = "macos")))]
     #[error("Error initializing shaderc Compiler")]
     ErrorInitializingShadercCompiler,
 
@@ -41,42 +36,13 @@ pub enum ShaderError {
     ErrorInitializingShadercCompileOptions,
 }
 
-#[cfg(all(
-    not(target_os = "ios"),
-    not(target_arch = "wasm32"),
-    not(all(target_arch = "aarch64", target_os = "macos"))
-))]
-impl Into<bevy_glsl_to_spirv::ShaderType> for ShaderStage {
-    fn into(self) -> bevy_glsl_to_spirv::ShaderType {
-        match self {
-            ShaderStage::Vertex => bevy_glsl_to_spirv::ShaderType::Vertex,
-            ShaderStage::Fragment => bevy_glsl_to_spirv::ShaderType::Fragment,
-            ShaderStage::Compute => bevy_glsl_to_spirv::ShaderType::Compute,
-        }
-    }
-}
-
-#[cfg(all(
-    not(target_os = "ios"),
-    not(target_arch = "wasm32"),
-    not(all(target_arch = "aarch64", target_os = "macos"))
-))]
-pub fn glsl_to_spirv(
-    glsl_source: &str,
-    stage: ShaderStage,
-    shader_defs: Option<&[String]>,
-) -> Result<Vec<u32>, ShaderError> {
-    bevy_glsl_to_spirv::compile(glsl_source, stage.into(), shader_defs)
-        .map_err(ShaderError::Compilation)
-}
-
 #[cfg(any(target_os = "ios", all(target_arch = "aarch64", target_os = "macos")))]
-impl Into<shaderc::ShaderKind> for ShaderStage {
-    fn into(self) -> shaderc::ShaderKind {
+impl Into<naga::ShaderStage> for ShaderStage {
+    fn into(self) -> naga::ShaderStage {
         match self {
-            ShaderStage::Vertex => shaderc::ShaderKind::Vertex,
-            ShaderStage::Fragment => shaderc::ShaderKind::Fragment,
-            ShaderStage::Compute => shaderc::ShaderKind::Compute,
+            ShaderStage::Vertex => naga::ShaderStage::Vertex,
+            ShaderStage::Fragment => naga::ShaderStage::Fragment,
+            ShaderStage::Compute => naga::ShaderStage::Compute,
         }
     }
 }
@@ -85,27 +51,35 @@ impl Into<shaderc::ShaderKind> for ShaderStage {
 pub fn glsl_to_spirv(
     glsl_source: &str,
     stage: ShaderStage,
-    shader_defs: Option<&[String]>,
+    _shader_defs: Option<&[String]>,
 ) -> Result<Vec<u32>, ShaderError> {
-    let mut compiler =
-        shaderc::Compiler::new().ok_or(ShaderError::ErrorInitializingShadercCompiler)?;
-    let mut options = shaderc::CompileOptions::new()
-        .ok_or(ShaderError::ErrorInitializingShadercCompileOptions)?;
-    if let Some(shader_defs) = shader_defs {
-        for def in shader_defs.iter() {
-            options.add_macro_definition(def, None);
-        }
-    }
+    let module =
+        naga::front::glsl::parse_str(glsl_source, "main", stage.into(), Default::default())
+            .unwrap();
+    use naga::back::spv;
+    // println!("shader_defs: {:?}", shader_defs);
+    let mut tmp: naga::FastHashSet<_> = Default::default();
+    tmp.insert(spv::Capability::Shader);
+    let res = spv::write_vec(&module, spv::WriterFlags::DEBUG, tmp).unwrap();
+    Ok(res)
 
-    let binary_result = compiler.compile_into_spirv(
-        glsl_source,
-        stage.into(),
-        "shader.glsl",
-        "main",
-        Some(&options),
-    )?;
-
-    Ok(binary_result.as_binary().to_vec())
+    // let mut compiler =
+    //     shaderc::Compiler::new().ok_or(ShaderError::ErrorInitializingShadercCompiler)?;
+    // let mut options = shaderc::CompileOptions::new()
+    //     .ok_or(ShaderError::ErrorInitializingShadercCompileOptions)?;
+    // if let Some(shader_defs) = shader_defs {
+    //     for def in shader_defs.iter() {
+    //         options.add_macro_definition(def, None);
+    //     }
+    // }
+    // let binary_result = compiler.compile_into_spirv(
+    //     glsl_source,
+    //     stage.into(),
+    //     "shader.glsl",
+    //     "main",
+    //     Some(&options),
+    // )?;
+    // Ok(binary_result.as_binary().to_vec())
 }
 
 fn bytes_to_words(bytes: &[u8]) -> Vec<u32> {

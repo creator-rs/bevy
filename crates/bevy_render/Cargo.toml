@@ -48,7 +48,8 @@ spirv-reflect = "0.2.3"
 bevy-glsl-to-spirv = "0.2.0"
 
 [target.'cfg(any(target_os = "ios", all(target_arch = "aarch64", target_os = "macos")))'.dependencies]
-shaderc = "0.7.0"
+# shaderc = "0.7.0"
+naga = { git = "https://github.com/gfx-rs/naga", rev = "4e5b39f452c81091bb1bc8d70f818f8516e6ccae", features = ["glsl-in", "spv-out"] }
 
 [features]
 png = ["image/png"]
